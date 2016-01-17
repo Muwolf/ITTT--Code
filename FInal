@@ -1,0 +1,130 @@
+#include <Servo.h>
+
+// Variables for your Arduino pins, just define here what's concected to what pin
+const int butRed = 0;
+const int butGreen = 1;
+const int butBlue = 2;
+const int ledRed = 4;
+const int ledGreen = 5;
+const int ledBlue = 6;
+const int Glow = 3;
+const int butGO = 8;
+const int scoreout = 11;
+
+// Variables for keeping the score, change these for longer or shorter games.
+Servo scoreBoard;
+const long MAXScore = 50000;
+long Score = 0;
+int GlowOut = 0;
+int scoreVal = 0; 
+
+//Variables used for the LED controlls
+int var = 0;
+int ledState = LOW;
+unsigned long previousMillis = 0;
+long interval = 400;
+
+//Variables for the buttons
+int buttonRed = 0;
+int buttonGreen = 0;
+int buttonBlue = 0; 
+
+
+void setup() {
+  pinMode(butRed, INPUT);
+  pinMode(butGreen, INPUT);
+  pinMode(butBlue, INPUT);
+  pinMode(butGO, INPUT);
+  pinMode(ledRed, OUTPUT);
+  pinMode(ledGreen, OUTPUT);
+  pinMode(ledBlue, OUTPUT);
+  pinMode(Glow, OUTPUT);
+  scoreBoard.attach(scoreout);
+}
+
+void loop() {
+
+//SCORE CONTROLL:
+GlowOut = map(Score, 0, MAXScore, 50, 255);
+analogWrite(Glow, GlowOut);
+
+if (Score <= 0) {
+  Score = 0;
+} else if (Score >= MAXScore) {
+  Score = MAXScore;
+}
+if (Score == MAXScore) {
+  analogWrite(Glow, 255);
+  delay(100);
+  analogWrite(Glow, 0);
+  delay(100);
+  analogWrite(Glow, 255);
+  delay(100);
+  analogWrite(Glow, 0);
+  delay(100);
+  analogWrite(Glow, 255);
+  delay(100);
+  analogWrite(Glow, 0);
+  delay(100);
+}
+
+scoreVal = map(Score, 0, MAXScore, 0, 180);
+scoreBoard.write(scoreVal);
+
+
+// Go button cotroll, the program will skip this part till it recieves an input from the user. 
+if ((digitalRead(butGO) == 1)) {
+  shoot();
+} else {
+  
+}
+} 
+
+void shoot() {
+
+// Delay without using the Delay function:
+  unsigned long currentMillis = millis();
+// LED controll:
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    digitalWrite(ledRed, LOW);
+    digitalWrite(ledGreen, LOW);
+    digitalWrite(ledBlue, LOW);
+    var = random(4, 7);
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+    digitalWrite(var, ledState);
+  }
+  int Red = digitalRead(butRed);
+  int Green = digitalRead(butGreen);
+  int Blue = digitalRead(butBlue);
+
+// BUTTON CONTROLL:
+  if (Red == 1) {
+    if (var == ledRed){
+      Score += 1;
+      
+    }else{
+      Score -= 1;
+    }
+  }
+
+  if (Green == 1) {
+    if (var == ledGreen){
+      Score += 1;
+    }else{
+      Score -= 1;
+    }
+  }
+  
+  if (Blue == 1) {
+    if (var == ledBlue){
+      Score += 1;
+    }else{
+      Score -= 1;
+    }
+  }
+}
